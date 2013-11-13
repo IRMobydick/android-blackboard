@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/blackboard"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/frameLayoutDraw"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginLeft="23dp"
+        android:layout_marginRight="22dp"
+        android:layout_marginTop="21dp"
+        android:background="@android:color/transparent"
+        android:layout_marginBottom="20dp" />
+
+    <Button
+        android:id="@+id/buttonPenColor"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignBaseline="@+id/buttonClean"
+        android:layout_alignBottom="@+id/buttonClean"
+        android:background="@drawable/color_palette"
+        android:onClick="selectPenColor"
+        android:layout_toLeftOf="@+id/buttonClean" />
+
+    <Button
+        android:id="@+id/buttonClean"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignBottom="@+id/buttonPlay"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="10dp"
+        android:onClick="setEraser"
+        android:background="@drawable/clean" />
+
+    <Button
+        android:id="@+id/buttonPlay"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/replay"
+        android:layout_marginLeft="20dp"
+        android:onClick="replay"
+        android:layout_marginBottom="5dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true" />
+
+
+</RelativeLayout>

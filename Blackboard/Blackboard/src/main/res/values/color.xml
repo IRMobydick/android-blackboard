@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="red">#E20214</color>
+    <color name="green">#64C169</color>
+    <color name="light_blue">#4FB1F9</color>
+    <color name="purple">#F94FDA</color>
+    <color name="yellow">#EBE54D</color>
+    <color name="pink">#E59FEB</color>
+    <color name="steel_blue">#02779E</color>
+    <color name="dark_gray">#41332F</color>
+    <color name="brown">#A32C03</color>
+    <color name="light_brown">#C45129</color>
+    <color name="strong_blue">#131723</color>
+    <color name="lighter_blue">#32B0DE</color>
+    <color name="silver">#AEBAC9</color>
+    <color name="lilac">#6B789E</color>
+    <color name="pen_yellow">#FFFF99</color>
+    <color name="pen_red">#FF6B6B</color>
+    <color name="pen_blue">#87CEFA</color>
+    <color name="pen_green">#90EE90</color>
+    <color name="pen_lila">#DDA0DD</color>
+    <color name="pen_white">#F8F8FF</color>
+
+    <array name="color_list">
+        <item>@color/pen_blue</item>
+        <item>@color/pen_green</item>
+        <item>@color/pen_lila</item>
+        <item>@color/pen_white</item>
+        <item>@color/pen_yellow</item>
+        <item>@color/pen_red</item>
+    </array>
+
+</resources>

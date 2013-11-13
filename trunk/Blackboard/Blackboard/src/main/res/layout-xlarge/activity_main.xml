@@ -10,11 +10,12 @@
         android:id="@+id/frameLayoutDraw"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_marginLeft="24dp"
-        android:layout_marginRight="23dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="46dp"
+        android:layout_marginTop="46dp"
+        android:layout_marginBottom="41dp"
         android:background="@android:color/transparent"
-        android:layout_marginBottom="21dp" />
+         />
 
     <Button
         android:id="@+id/buttonColorPalette"
@@ -57,7 +58,6 @@
         android:onClick="reset"
         android:layout_marginBottom="5dp"
         android:layout_toLeftOf="@+id/buttonColorPalette"
-        android:layout_alignBaseline="@+id/buttonEraser"
-      />
+        android:layout_alignBaseline="@+id/buttonEraser" />
 
 </RelativeLayout>

@@ -16,7 +16,6 @@ import android.widget.ImageView;
 public class ColorPaletteActivity extends Activity implements AdapterView.OnItemClickListener{
 
     private static final String COLOR_ID = "COLOR_ID";
-    private GridView mGridView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,9 +23,9 @@ public class ColorPaletteActivity extends Activity implements AdapterView.OnItem
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_color_palette);
 
-        mGridView = (GridView) findViewById(R.id.gridViewColorPalette);
-        mGridView.setAdapter(new ColorPaletteAdapter(this, R.array.color_list));
-        mGridView.setOnItemClickListener(this);
+        GridView  gridView = (GridView) findViewById(R.id.gridViewColorPalette);
+        gridView.setAdapter(new ColorPaletteAdapter(this, R.array.color_list));
+        gridView.setOnItemClickListener(this);
     }
 
     @Override
@@ -64,7 +63,7 @@ public class ColorPaletteActivity extends Activity implements AdapterView.OnItem
 
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
-            ImageView imageView = null;
+            ImageView imageView;
             if (view == null) {
                 view = mLayoutInflater.inflate(R.layout.color_palette_item, viewGroup, false);
             }

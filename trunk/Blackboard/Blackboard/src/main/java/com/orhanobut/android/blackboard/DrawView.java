@@ -26,19 +26,16 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     private List<MyPath> mPathList;
     private volatile boolean mRunning;
     private final SurfaceHolder mHolder;
-    private final Context mContext;
 
     public DrawView(Context c) {
         super(c);
 
-        mContext = c;
         setZOrderOnTop(true);
         mPath = new MyPath();
         mPathList = new ArrayList<MyPath>();
         getHolder().addCallback(this);
         mHolder = getHolder();
         mHolder.setFormat(PixelFormat.TRANSPARENT);
-
     }
 
     public void setPaintColor(int paintColor) {

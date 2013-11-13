@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/relativeLayoutBlackboardMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/blackboard"
@@ -16,20 +17,20 @@
         android:layout_marginBottom="20dp" />
 
     <Button
-        android:id="@+id/buttonPenColor"
+        android:id="@+id/buttonColorPalette"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_alignBaseline="@+id/buttonClean"
-        android:layout_alignBottom="@+id/buttonClean"
+        android:layout_alignBaseline="@+id/buttonEraser"
+        android:layout_alignBottom="@+id/buttonEraser"
         android:background="@drawable/color_palette"
         android:onClick="selectPenColor"
-        android:layout_toLeftOf="@+id/buttonClean" />
+        android:layout_toLeftOf="@+id/buttonEraser" />
 
     <Button
-        android:id="@+id/buttonClean"
+        android:id="@+id/buttonEraser"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_alignBottom="@+id/buttonPlay"
+        android:layout_alignBottom="@+id/buttonReplay"
         android:layout_alignParentRight="true"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="10dp"
@@ -37,7 +38,7 @@
         android:background="@drawable/clean" />
 
     <Button
-        android:id="@+id/buttonPlay"
+        android:id="@+id/buttonReplay"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:background="@drawable/replay"
@@ -47,5 +48,16 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true" />
 
+    <Button
+        android:id="@+id/buttonReset"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/replay"
+        android:layout_marginRight="10dp"
+        android:onClick="reset"
+        android:layout_marginBottom="5dp"
+        android:layout_toLeftOf="@+id/buttonColorPalette"
+        android:layout_alignBaseline="@+id/buttonEraser"
+      />
 
 </RelativeLayout>

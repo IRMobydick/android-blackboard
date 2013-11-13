@@ -27,8 +27,7 @@
         <activity
             android:name=".ColorPaletteActivity"
             android:screenOrientation="landscape"
-            android:theme="@android:style/Theme.Dialog"
-            android:label="@string/title_activity_color_palette_activitiy" >
+            android:theme="@android:style/Theme.Dialog" >
         </activity>
     </application>
 

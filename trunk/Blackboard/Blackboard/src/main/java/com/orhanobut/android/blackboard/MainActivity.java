@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 
 public class MainActivity extends Activity {
@@ -11,6 +13,8 @@ public class MainActivity extends Activity {
     private static final int COLOR_PICK = 0 ;
     private DrawView mDrawView;
     private boolean mEraserActive;
+    private View mRootView;
+    private Animation mAnimClick;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,13 +24,24 @@ public class MainActivity extends Activity {
         FrameLayout layout = (FrameLayout) findViewById(R.id.frameLayoutDraw);
         mDrawView = new DrawView(this);
         layout.addView(mDrawView);
+        mRootView = getWindow().getDecorView().getRootView();
+
+        mAnimClick = AnimationUtils.loadAnimation(this, R.anim.anim_alpha);
     }
 
     public void replay(View view) {
+        mRootView.setEnabled(false);
         mDrawView.replay();
+        mRootView.setEnabled(true);
+    }
+
+    public void reset(View view){
+        view.startAnimation(mAnimClick);
+        mDrawView.reset();
     }
 
     public void setEraser(View view) {
+        view.startAnimation(mAnimClick);
         if (mEraserActive) {
             mDrawView.setPen();
             view.setBackgroundResource(R.drawable.clean);
@@ -38,6 +53,7 @@ public class MainActivity extends Activity {
     }
 
     public void selectPenColor(View view) {
+        view.startAnimation(mAnimClick);
         Intent i = new Intent(this, ColorPaletteActivity.class);
         startActivityForResult(i,COLOR_PICK);
     }

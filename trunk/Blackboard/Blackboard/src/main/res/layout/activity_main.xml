@@ -1,63 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/relativeLayoutBlackboardMain"
+    android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/blackboard"
     android:orientation="vertical">
 
     <FrameLayout
-        android:id="@+id/frameLayoutDraw"
+        android:id="@+id/draw_layout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_marginLeft="24dp"
-        android:layout_marginRight="23dp"
-        android:layout_marginTop="24dp"
-        android:background="@android:color/transparent"
-        android:layout_marginBottom="21dp" />
+        android:paddingBottom="@dimen/draw_view_padding_left"
+        android:paddingLeft="@dimen/draw_view_padding_left"
+        android:paddingRight="@dimen/draw_view_padding_left"
+        android:paddingTop="@dimen/draw_view_padding_top"
+        android:background="@android:color/transparent" />
 
-    <Button
-        android:id="@+id/buttonColorPalette"
-        android:layout_width="@dimen/blackboard_button_size"
-        android:layout_height="@dimen/blackboard_button_size"
-        android:layout_alignBaseline="@+id/buttonEraser"
-        android:layout_alignBottom="@+id/buttonEraser"
-        android:background="@drawable/color_palette"
-        android:onClick="selectPenColor"
-        android:layout_toLeftOf="@+id/buttonEraser" />
-
-    <Button
-        android:id="@+id/buttonEraser"
-        android:layout_width="@dimen/blackboard_button_size"
-        android:layout_height="@dimen/blackboard_button_size"
-        android:layout_alignBottom="@+id/buttonReplay"
-        android:layout_alignParentRight="true"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="10dp"
-        android:onClick="setEraser"
-        android:background="@drawable/clean" />
-
-    <Button
-        android:id="@+id/buttonReplay"
-        android:layout_width="@dimen/blackboard_button_size"
-        android:layout_height="@dimen/blackboard_button_size"
-        android:background="@drawable/replay"
-        android:layout_marginLeft="20dp"
-        android:onClick="replay"
-        android:layout_marginBottom="5dp"
+    <RelativeLayout
+        android:id="@+id/buttons_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true" />
+        android:layout_marginBottom="4dp">
 
-    <Button
-        android:id="@+id/buttonReset"
-        android:layout_width="@dimen/blackboard_button_size"
-        android:layout_height="@dimen/blackboard_button_size"
-        android:background="@drawable/new_blackboard"
-        android:layout_marginRight="10dp"
-        android:onClick="reset"
-        android:layout_marginBottom="5dp"
-        android:layout_toLeftOf="@+id/buttonColorPalette"
-        android:layout_alignBaseline="@+id/buttonEraser"
-      />
+        <Button
+            android:id="@+id/replay"
+            android:layout_width="@dimen/blackboard_button_size"
+            android:layout_height="@dimen/blackboard_button_size"
+            android:layout_marginLeft="4dp"
+            android:background="@drawable/replay" />
+
+        <LinearLayout
+            android:id="@+id/draw_buttons_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true">
+
+            <Button
+                android:id="@+id/screenshot"
+                android:layout_width="@dimen/blackboard_button_size"
+                android:layout_height="@dimen/blackboard_button_size"
+                android:layout_marginLeft="4dp"
+                android:background="@drawable/replay" />
+
+            <Button
+                android:id="@+id/color_palette"
+                android:layout_width="@dimen/blackboard_button_size"
+                android:layout_height="@dimen/blackboard_button_size"
+                android:layout_gravity="right"
+                android:background="@drawable/color_palette" />
+
+            <Button
+                android:id="@+id/eraser"
+                android:layout_width="@dimen/blackboard_button_size"
+                android:layout_height="@dimen/blackboard_button_size"
+                android:layout_gravity="right"
+                android:layout_marginRight="4dp"
+                android:background="@drawable/clean"/>
+
+            <Button
+                android:id="@+id/reset"
+                android:layout_width="@dimen/blackboard_button_size"
+                android:layout_height="@dimen/blackboard_button_size"
+                android:layout_gravity="right"
+                android:background="@drawable/new_blackboard" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/author"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/draw_view_padding_left"
+        android:layout_marginTop="3dp"
+        android:text="Your name"
+        android:textSize="14sp"
+        android:textColor="@color/dark_gray"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </RelativeLayout>

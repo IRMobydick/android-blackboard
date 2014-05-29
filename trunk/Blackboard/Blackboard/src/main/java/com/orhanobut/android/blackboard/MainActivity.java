@@ -1,82 +1,1 @@
-package com.orhanobut.android.blackboard;
-
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.FrameLayout;
-
-public class MainActivity extends Activity {
-
-    private static final int COLOR_PICK = 0 ;
-    private DrawView mDrawView;
-    private boolean mEraserActive;
-    private View mRootView;
-    private Animation mAnimClick;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        FrameLayout layout = (FrameLayout) findViewById(R.id.frameLayoutDraw);
-        mDrawView = new DrawView(this);
-        layout.addView(mDrawView);
-        mRootView = getWindow().getDecorView().getRootView();
-
-        mAnimClick = AnimationUtils.loadAnimation(this, R.anim.anim_alpha);
-    }
-
-    public void replay(View view) {
-        mRootView.setEnabled(false);
-        mDrawView.replay();
-        mRootView.setEnabled(true);
-    }
-
-    public void reset(View view){
-        view.startAnimation(mAnimClick);
-        mDrawView.reset();
-    }
-
-    public void setEraser(View view) {
-        view.startAnimation(mAnimClick);
-        if (mEraserActive) {
-            mDrawView.setPen();
-            view.setBackgroundResource(R.drawable.clean);
-        } else {
-            mDrawView.setEraser();
-            view.setBackgroundResource(R.drawable.pencil);
-        }
-        mEraserActive = !mEraserActive;
-    }
-
-    public void selectPenColor(View view) {
-        view.startAnimation(mAnimClick);
-        Intent i = new Intent(this, ColorPaletteActivity.class);
-        startActivityForResult(i,COLOR_PICK);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-       if (requestCode == COLOR_PICK){
-            if (resultCode == RESULT_OK){
-                int colorId = (int) data.getLongExtra("COLOR_ID", 0);
-                mDrawView.setPaintColor(colorId);
-            }
-       }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mDrawView.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mDrawView.onResume();
-    }
-}
+package com.orhanobut.android.blackboard;import android.app.AlertDialog;import android.content.DialogInterface;import android.content.Intent;import android.content.SharedPreferences;import android.graphics.Bitmap;import android.graphics.Canvas;import android.graphics.Matrix;import android.net.Uri;import android.os.Bundle;import android.os.Environment;import android.support.v4.app.FragmentActivity;import android.text.format.Time;import android.view.View;import android.view.animation.Animation;import android.view.animation.AnimationUtils;import android.widget.EditText;import android.widget.FrameLayout;import android.widget.TableRow;import android.widget.TextView;import java.io.File;import java.io.FileNotFoundException;import java.io.FileOutputStream;import java.io.IOException;import java.io.OutputStream;public class MainActivity extends FragmentActivity implements        View.OnClickListener,        ColorPaletteFragment.OnFragmentInteractionListener {    private static final String KEY_NAME = "name";    private DrawView drawView;    private boolean isEraserActive;    private View rootView;    private Animation animClick;    private View buttonsLayout;    private TextView textViewAuthor;    @Override    protected void onCreate(Bundle savedInstanceState) {        super.onCreate(savedInstanceState);        setContentView(R.layout.activity_main);        FrameLayout layout = (FrameLayout) findViewById(R.id.draw_layout);        drawView = new DrawView(this);        layout.addView(drawView);        rootView = getWindow().getDecorView().getRootView();        animClick = AnimationUtils.loadAnimation(this, R.anim.anim_alpha);        findViewById(R.id.buttons_layout).bringToFront();        findViewById(R.id.screenshot).setOnClickListener(this);        findViewById(R.id.replay).setOnClickListener(this);        findViewById(R.id.color_palette).setOnClickListener(this);        findViewById(R.id.eraser).setOnClickListener(this);        findViewById(R.id.reset).setOnClickListener(this);        findViewById(R.id.author).setOnClickListener(this);        buttonsLayout = findViewById(R.id.buttons_layout);        textViewAuthor = (TextView) findViewById(R.id.author);        textViewAuthor.setText(getName());    }    private void replay(View view) {        rootView.setEnabled(false);        drawView.replay();        rootView.setEnabled(true);    }    private void reset(View view) {        view.startAnimation(animClick);        drawView.reset();    }    private void setEraser(View view) {        view.startAnimation(animClick);        if (isEraserActive) {            drawView.setPen();            view.setBackgroundResource(R.drawable.clean);        } else {            drawView.setEraser();            view.setBackgroundResource(R.drawable.pencil);        }        isEraserActive = !isEraserActive;    }    private void selectPenColor(View view) {        view.startAnimation(animClick);        ColorPaletteFragment.newInstance().show(getSupportFragmentManager(), "colors");    }    @Override    protected void onPause() {        super.onPause();        drawView.onPause();    }    @Override    protected void onResume() {        super.onResume();        drawView.onResume();    }    @Override    public void onColorSelected(int color) {        drawView.setPaintColor(color);    }    @Override    public void onClick(View v) {        switch (v.getId()) {            case R.id.screenshot:                handleScreenshot();                break;            case R.id.reset:                reset(v);                break;            case R.id.replay:                replay(v);                break;            case R.id.eraser:                setEraser(v);                break;            case R.id.color_palette:                selectPenColor(v);                break;            case R.id.author:                changeName(v);                break;        }    }    private void changeName(View v) {        AlertDialog.Builder alert = new AlertDialog.Builder(this);        alert.setMessage("Your name");        final EditText input = new EditText(this);        alert.setView(input);        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {            public void onClick(DialogInterface dialog, int whichButton) {                String text = input.getText().toString();                textViewAuthor.setText(text);                saveName(text);            }        });        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {            public void onClick(DialogInterface dialog, int whichButton) {                dialog.dismiss();            }        });        alert.show();    }    private void saveName(String value){        SharedPreferences pref = getSharedPreferences(getPackageName(),MODE_PRIVATE);        pref.edit().putString(KEY_NAME,value).commit();    }    private String getName(){        SharedPreferences pref = getSharedPreferences(getPackageName(),MODE_PRIVATE);        return pref.getString(KEY_NAME,"Your name");    }    private void handleScreenshot() {        Uri uri = takeScreenShot();        Intent share = new Intent(Intent.ACTION_SEND);        share.setType("image/jpeg");        share.putExtra(Intent.EXTRA_STREAM, uri);        startActivity(Intent.createChooser(share, "Share"));    }    public Uri takeScreenShot() {        buttonsLayout.setVisibility(View.GONE);        Time t = new Time();        t.setToNow();        rootView.setDrawingCacheEnabled(true);        File folder = new File(Environment.getExternalStorageDirectory().toString() + "/blackboard");        if (!folder.exists()) {            folder.mkdir();        }        String path = Environment.getExternalStorageDirectory().toString() + "/blackboard/" + t.format("%Y%M%d%k%M%S") + ".jpeg";        Bitmap bitmap = Bitmap.createBitmap(drawView.getBitmap());        Bitmap bitmap1 = Bitmap.createBitmap(rootView.getDrawingCache());        Bitmap result = overlay(bitmap1, bitmap);        bitmap.recycle();        bitmap1.recycle();        rootView.setDrawingCacheEnabled(false);        OutputStream fout = null;        File imageFile = new File(path);        try {            fout = new FileOutputStream(imageFile);            result.compress(Bitmap.CompressFormat.JPEG, 90, fout);            fout.flush();            fout.close();        } catch (FileNotFoundException e) {            e.printStackTrace();        } catch (IOException e) {            e.printStackTrace();        } finally {            result.recycle();        }        buttonsLayout.setVisibility(View.VISIBLE);        return Uri.fromFile(new File(path));    }    private Bitmap overlay(Bitmap bmp1, Bitmap bmp2) {        Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(), bmp1.getHeight(), bmp1.getConfig());        Canvas canvas = new Canvas(bmOverlay);        canvas.drawBitmap(bmp1, new Matrix(), null);        int paddingLeft = (int) getResources().getDimension(R.dimen.draw_view_padding_left);        int paddingTop = (int) getResources().getDimension(R.dimen.draw_view_padding_top);        canvas.drawBitmap(bmp2, paddingLeft, paddingTop, null);        return bmOverlay;    }}

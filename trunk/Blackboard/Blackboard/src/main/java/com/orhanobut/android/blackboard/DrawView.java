@@ -2,6 +2,7 @@
 package com.orhanobut.android.blackboard;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -18,56 +19,63 @@ import java.util.List;
 
 public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
 
-    private MyPath mPath;
-    private float mX, mY;
+    private MyPath path;
+    private float x, y;
     private static final float TOUCH_TOLERANCE = 0;
     private static final long REPLAY_SPEED = 50;
-    private Thread mThread;
-    private List<MyPath> mPathList;
-    private volatile boolean mRunning;
-    private final SurfaceHolder mHolder;
+    private Thread drawThread;
+    private List<MyPath> pathList;
+    private volatile boolean running;
+    private final SurfaceHolder holder;
+    private Bitmap bitmap;
+    private Canvas myCanvas;
+    private int width;
+    private int height;
 
     public DrawView(Context c) {
         super(c);
 
         setZOrderOnTop(true);
-        mPath = new MyPath();
-        mPathList = new ArrayList<MyPath>();
+        path = new MyPath();
+        pathList = new ArrayList<MyPath>();
         getHolder().addCallback(this);
-        mHolder = getHolder();
-        mHolder.setFormat(PixelFormat.TRANSPARENT);
+        holder = getHolder();
+        holder.setFormat(PixelFormat.TRANSPARENT);
+
+        setDrawingCacheEnabled(true);
     }
 
     public void setPaintColor(int paintColor) {
-        mPath.setPaintColor(paintColor);
+        path.setPaintColor(paintColor);
     }
 
+    @Override
     public void draw(Canvas canvas) {
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-        for (int i = 0; i < mPathList.size(); i++) {
-            mPathList.get(i).draw(canvas);
+        for (int i = 0; i < pathList.size(); i++) {
+            pathList.get(i).draw(canvas);
         }
-        mPath.draw(canvas);
+        path.draw(canvas);
     }
 
     private void touchStart(float x, float y) {
-        mPath.moveTo(x, y);
-        mX = x;
-        mY = y;
+        path.moveTo(x, y);
+        this.x = x;
+        this.y = y;
     }
 
     private void touchMove(float x, float y) {
-        float dx = Math.abs(x - mX);
-        float dy = Math.abs(y - mY);
+        float dx = Math.abs(x - this.x);
+        float dy = Math.abs(y - this.y);
         if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
-            mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
-            mX = x;
-            mY = y;
+            path.quadTo(this.x, this.y, (x + this.x) / 2, (y + this.y) / 2);
+            this.x = x;
+            this.y = y;
         }
     }
 
     private void touchUp() {
-        mPath.lineTo(mX, mY);
+        path.lineTo(x, y);
     }
 
     @Override
@@ -78,30 +86,30 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 touchStart(x, y);
-                mPath.addPoint(new Point(x, y));
+                path.addPoint(new Point(x, y));
                 break;
             case MotionEvent.ACTION_MOVE:
                 touchMove(x, y);
-                mPath.addPoint(new Point(x, y));
+                path.addPoint(new Point(x, y));
                 break;
             case MotionEvent.ACTION_UP:
                 touchMove(x + 1, y + 1);
 
-                mPath.addPoint(new Point(x + 1, y + 1));
+                path.addPoint(new Point(x + 1, y + 1));
                 touchUp();
-                mPathList.add(mPath);
-                mPath = new MyPath(mPath.getPaint());
+                pathList.add(path);
+                path = new MyPath(path.getPaint());
                 break;
         }
         return true;
     }
 
     public void replay() {
-        List<MyPath> tempList = mPathList;
-        mPathList = new ArrayList<MyPath>(tempList.size());
+        List<MyPath> tempList = pathList;
+        pathList = new ArrayList<MyPath>(tempList.size());
 
         for (MyPath mp : tempList) {
-            mPath = new MyPath(mp.getPaint());
+            path = new MyPath(mp.getPaint());
             List<Point> list = mp.getPointList();
             touchStart(list.get(0).getX(), list.get(0).getY());
             for (int i = 1; i < list.size() - 1; i++) {
@@ -114,22 +122,22 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
                     e.printStackTrace();
                 }
             }
-            mPathList.add(mp);
+            pathList.add(mp);
         }
-        mPath = new MyPath(mPath.getPaint());
+        path = new MyPath(path.getPaint());
     }
 
     public void reset() {
-        mPathList.clear();
-        mPath = new MyPath(mPath.getPaint());
+        pathList.clear();
+        path = new MyPath(path.getPaint());
     }
 
     public void setEraser() {
-        mPath.setEraserMode();
+        path.setEraserMode();
     }
 
     public void setPen() {
-        mPath.setPenMode();
+        path.setPenMode();
     }
 
     @Override
@@ -138,7 +146,17 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i2, int i3) {
+    public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
+        width = w;
+        height = h;
+
+        if (bitmap != null){
+            bitmap.recycle();
+        }
+
+        bitmap = Bitmap.createBitmap(w,h,Bitmap.Config.ARGB_8888);
+
+        myCanvas = new Canvas(bitmap);
 
     }
 
@@ -148,110 +166,117 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     }
 
     private void setRunning(boolean isRunning) {
-        mRunning = isRunning;
+        running = isRunning;
     }
 
     public void onPause() {
         setRunning(false);
         try {
-            mThread.join();
+            drawThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        mThread = null;
+        drawThread = null;
     }
 
     public void onResume() {
         setRunning(true);
-        mThread = new Thread(this);
-        mThread.start();
+        drawThread = new Thread(this);
+        drawThread.start();
     }
 
     @Override
     public void run() {
-        while (mRunning) {
-            if (mHolder.getSurface().isValid()) {
-                Canvas c = mHolder.lockCanvas(null);
+        while (running) {
+            if (holder.getSurface().isValid()) {
+                Canvas c = holder.lockCanvas(null);
 
-                synchronized (mHolder) {
+                synchronized (holder) {
+                    if (myCanvas!= null){
+                        draw(myCanvas);
+                    }
                     draw(c);
                 }
 
-                mHolder.unlockCanvasAndPost(c);
+                holder.unlockCanvasAndPost(c);
             }
         }
     }
 
+    public Bitmap getBitmap(){
+        return bitmap;
+    }
+
     static class MyPath extends Path {
-        private final Paint mPaint;
-        private final List<Point> mPointList;
-        private final float mStrokeWidth = 14;
-        private final int mDefaultColor = Color.parseColor("#FFFF99");
+        private final Paint paint;
+        private final List<Point> pointList;
+        private final float strokeWidth = 14;
+        private final int defaultColor = Color.parseColor("#FFFF99");
 
         public MyPath(){
-            mPaint = new Paint();
-            mPaint.setAntiAlias(true);
-            mPaint.setDither(true);
-            mPaint.setColor(mDefaultColor);
-            mPaint.setStyle(Paint.Style.STROKE);
-            mPaint.setStrokeJoin(Paint.Join.ROUND);
-            mPaint.setStrokeCap(Paint.Cap.ROUND);
-            mPaint.setStrokeWidth(12);
-            mPointList = new ArrayList<Point>();
+            paint = new Paint();
+            paint.setAntiAlias(true);
+            paint.setDither(true);
+            paint.setColor(defaultColor);
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeJoin(Paint.Join.ROUND);
+            paint.setStrokeCap(Paint.Cap.ROUND);
+            paint.setStrokeWidth(12);
+            pointList = new ArrayList<Point>();
         }
 
         public MyPath(Paint paint) {
-            mPaint = new Paint(paint);
-            mPointList = new ArrayList<Point>();
+            this.paint = new Paint(paint);
+            pointList = new ArrayList<Point>();
         }
 
         public void draw(Canvas canvas) {
-            canvas.drawPath(this, mPaint);
+            canvas.drawPath(this, paint);
         }
 
         public List<Point> getPointList() {
-            return mPointList;
+            return pointList;
         }
 
         public void addPoint(Point point) {
-            mPointList.add(point);
+            pointList.add(point);
         }
 
         public void setPaintColor(int color) {
-            this.mPaint.setColor(color);
+            this.paint.setColor(color);
         }
 
         public void setEraserMode() {
-            mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-            mPaint.setStrokeWidth(50f);
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            paint.setStrokeWidth(50f);
         }
 
         public void setPenMode(){
-            mPaint.setStrokeWidth(mStrokeWidth);
-            mPaint.setXfermode(null);
+            paint.setStrokeWidth(strokeWidth);
+            paint.setXfermode(null);
         }
 
         public Paint getPaint() {
-            return mPaint;
+            return paint;
         }
 
     }
 
     static class Point {
-        private final float mX;
-        private final float mY;
+        private final float x;
+        private final float y;
 
         public Point(float x, float y) {
-            this.mX = x;
-            this.mY = y;
+            this.x = x;
+            this.y = y;
         }
 
         public float getX() {
-            return mX;
+            return x;
         }
 
         public float getY() {
-            return mY;
+            return y;
         }
     }
 

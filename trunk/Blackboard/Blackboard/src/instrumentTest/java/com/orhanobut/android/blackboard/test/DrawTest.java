@@ -1,7 +1,6 @@
 package com.orhanobut.android.blackboard.test;
 
 import android.app.Instrumentation;
-import android.content.Intent;
 import android.test.ActivityInstrumentationTestCase2;
 import android.test.UiThreadTest;
 import android.view.View;
@@ -14,8 +13,6 @@ import com.orhanobut.android.blackboard.ColorPaletteActivity;
 import com.orhanobut.android.blackboard.DrawView;
 import com.orhanobut.android.blackboard.MainActivity;
 import com.orhanobut.android.blackboard.R;
-
-import junit.framework.Assert;
 
 
 /**
@@ -43,10 +40,10 @@ public class DrawTest extends ActivityInstrumentationTestCase2<MainActivity> {
     protected void setUp() throws Exception {
         super.setUp();
         mMainActivity = getActivity();
-        mButtonReplay = (Button) mMainActivity.findViewById(R.id.buttonReplay);
-        mButtonClear = (Button) mMainActivity.findViewById(R.id.buttonEraser);
-        mButtonColorPalette = (Button) mMainActivity.findViewById(R.id.buttonColorPalette);
-        mButtonReset = (Button) mMainActivity.findViewById(R.id.buttonReset);
+        mButtonReplay = (Button) mMainActivity.findViewById(R.id.replay);
+        mButtonClear = (Button) mMainActivity.findViewById(R.id.eraser);
+        mButtonColorPalette = (Button) mMainActivity.findViewById(R.id.color_palette);
+        mButtonReset = (Button) mMainActivity.findViewById(R.id.reset);
 
         mInstrument = getInstrumentation();
 
@@ -84,7 +81,7 @@ public class DrawTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
     @UiThreadTest
     public void testOnCreate(){
-        FrameLayout layout = (FrameLayout) mMainActivity.findViewById(R.id.frameLayoutDraw);
+        FrameLayout layout = (FrameLayout) mMainActivity.findViewById(R.id.draw_layout);
         mDrawView = new DrawView(mMainActivity);
         layout.addView(mDrawView);
 

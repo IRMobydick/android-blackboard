@@ -10,6 +10,9 @@ import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.os.Handler;
+import android.os.Message;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -29,10 +32,14 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     private final SurfaceHolder holder;
     private Bitmap bitmap;
     private Canvas myCanvas;
-    private int width;
-    private int height;
+    private ReplayTask thread;
+    private DrawListener listener;
 
-    public DrawView(Context c) {
+    public interface DrawListener{
+        public void onReplayCompleted();
+    }
+
+    public DrawView(Context c, DrawListener listener) {
         super(c);
 
         setZOrderOnTop(true);
@@ -43,6 +50,8 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         holder.setFormat(PixelFormat.TRANSPARENT);
 
         setDrawingCacheEnabled(true);
+
+        this.listener = listener;
     }
 
     public void setPaintColor(int paintColor) {
@@ -104,32 +113,79 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         return true;
     }
 
-    public void replay() {
-        List<MyPath> tempList = pathList;
-        pathList = new ArrayList<MyPath>(tempList.size());
+    class ReplayTask extends Thread {
 
-        for (MyPath mp : tempList) {
-            path = new MyPath(mp.getPaint());
-            List<Point> list = mp.getPointList();
-            touchStart(list.get(0).getX(), list.get(0).getY());
-            for (int i = 1; i < list.size() - 1; i++) {
-                Point p = list.get(i);
-                touchMove(p.getX(), p.getY());
+        private final Object monitor = new Object();
+        private State state;
 
-                try {
-                    Thread.sleep(REPLAY_SPEED);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        @Override
+        public void run() {
+            List<MyPath> tempList = pathList;
+            pathList = new ArrayList<MyPath>(tempList.size());
+
+            for (MyPath mp : tempList) {
+                path = new MyPath(mp.getPaint());
+                List<Point> list = mp.getPointList();
+                touchStart(list.get(0).getX(), list.get(0).getY());
+                for (int i = 1; i < list.size() - 1; i++) {
+
+                    synchronized (monitor) {
+                        while (state != State.RUNNABLE) {
+                            try {
+                                monitor.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    Point p = list.get(i);
+                    touchMove(p.getX(), p.getY());
+
+                    try {
+                        Thread.sleep(REPLAY_SPEED);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
                 }
+                pathList.add(mp);
             }
-            pathList.add(mp);
+            path = new MyPath(path.getPaint());
+
+            Message m = new Message();
+            handler.sendMessage(m);
         }
-        path = new MyPath(path.getPaint());
+    }
+
+    private final Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+
+            listener.onReplayCompleted();
+        }
+    };
+
+    public void replay() throws InterruptedException {
+        if (thread == null || thread.getState() == Thread.State.TERMINATED) {
+            thread = new ReplayTask();
+            thread.state = Thread.State.RUNNABLE;
+            thread.start();
+        } else if (thread.state == Thread.State.WAITING) {
+            thread.state = Thread.State.RUNNABLE;
+            synchronized (thread.monitor) {
+                thread.monitor.notify();
+            }
+        } else if (thread.state == Thread.State.RUNNABLE) {
+            thread.state = Thread.State.WAITING;
+        }
     }
 
     public void reset() {
         pathList.clear();
         path = new MyPath(path.getPaint());
+        thread = null;
     }
 
     public void setEraser() {
@@ -147,14 +203,11 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
-        width = w;
-        height = h;
-
-        if (bitmap != null){
+        if (bitmap != null) {
             bitmap.recycle();
         }
 
-        bitmap = Bitmap.createBitmap(w,h,Bitmap.Config.ARGB_8888);
+        bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
 
         myCanvas = new Canvas(bitmap);
 
@@ -192,7 +245,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
                 Canvas c = holder.lockCanvas(null);
 
                 synchronized (holder) {
-                    if (myCanvas!= null){
+                    if (myCanvas != null) {
                         draw(myCanvas);
                     }
                     draw(c);
@@ -203,7 +256,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         }
     }
 
-    public Bitmap getBitmap(){
+    public Bitmap getBitmap() {
         return bitmap;
     }
 
@@ -213,7 +266,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         private final float strokeWidth = 14;
         private final int defaultColor = Color.parseColor("#FFFF99");
 
-        public MyPath(){
+        public MyPath() {
             paint = new Paint();
             paint.setAntiAlias(true);
             paint.setDither(true);
@@ -251,7 +304,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
             paint.setStrokeWidth(50f);
         }
 
-        public void setPenMode(){
+        public void setPenMode() {
             paint.setStrokeWidth(strokeWidth);
             paint.setXfermode(null);
         }

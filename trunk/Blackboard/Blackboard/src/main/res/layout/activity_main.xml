@@ -14,7 +14,7 @@
         android:paddingLeft="@dimen/draw_view_padding_left"
         android:paddingRight="@dimen/draw_view_padding_left"
         android:paddingTop="@dimen/draw_view_padding_top"
-        android:background="@android:color/transparent" />
+        android:background="@android:color/transparent"/>
 
     <RelativeLayout
         android:id="@+id/buttons_layout"
@@ -30,6 +30,14 @@
             android:layout_marginLeft="4dp"
             android:background="@drawable/replay" />
 
+        <Button
+            android:id="@+id/pause"
+            android:layout_width="@dimen/blackboard_button_size"
+            android:layout_height="@dimen/blackboard_button_size"
+            android:layout_marginLeft="4dp"
+            android:layout_toRightOf="@+id/replay"
+            android:background="@drawable/replay" />
+
         <LinearLayout
             android:id="@+id/draw_buttons_layout"
             android:layout_width="wrap_content"
@@ -40,7 +48,7 @@
                 android:id="@+id/screenshot"
                 android:layout_width="@dimen/blackboard_button_size"
                 android:layout_height="@dimen/blackboard_button_size"
-                android:layout_marginLeft="4dp"
+                android:layout_marginRight="@dimen/button_margin_right"
                 android:background="@drawable/replay" />
 
             <Button
@@ -48,6 +56,7 @@
                 android:layout_width="@dimen/blackboard_button_size"
                 android:layout_height="@dimen/blackboard_button_size"
                 android:layout_gravity="right"
+                android:layout_marginRight="@dimen/button_margin_right"
                 android:background="@drawable/color_palette" />
 
             <Button
@@ -55,7 +64,7 @@
                 android:layout_width="@dimen/blackboard_button_size"
                 android:layout_height="@dimen/blackboard_button_size"
                 android:layout_gravity="right"
-                android:layout_marginRight="4dp"
+                android:layout_marginRight="@dimen/button_margin_right"
                 android:background="@drawable/clean"/>
 
             <Button
@@ -63,6 +72,7 @@
                 android:layout_width="@dimen/blackboard_button_size"
                 android:layout_height="@dimen/blackboard_button_size"
                 android:layout_gravity="right"
+                android:layout_marginRight="@dimen/button_margin_right"
                 android:background="@drawable/new_blackboard" />
         </LinearLayout>
 

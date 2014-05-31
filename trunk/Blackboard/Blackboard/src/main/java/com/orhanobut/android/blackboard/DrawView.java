@@ -37,6 +37,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
 
     public interface DrawListener{
         public void onReplayCompleted();
+        public void onPaused();
     }
 
     public DrawView(Context c, DrawListener listener) {
@@ -179,7 +180,22 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
             }
         } else if (thread.state == Thread.State.RUNNABLE) {
             thread.state = Thread.State.WAITING;
+            listener.onPaused();
         }
+    }
+
+    public boolean isReplaying(){
+        if (thread != null && thread.getState() == Thread.State.RUNNABLE){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isPaused(){
+        if (thread.state == Thread.State.WAITING){
+            return true;
+        }
+        return false;
     }
 
     public void reset() {
@@ -230,6 +246,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
             e.printStackTrace();
         }
         drawThread = null;
+        thread = null;
     }
 
     public void onResume() {

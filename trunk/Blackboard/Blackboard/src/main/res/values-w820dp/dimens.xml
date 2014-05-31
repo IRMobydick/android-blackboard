@@ -3,8 +3,10 @@
          (such as screen margins) for screens with more than 820dp of available width. This
          would include 7" and 10" devices in landscape (~960dp and ~1280dp respectively). -->
     <dimen name="activity_horizontal_margin">64dp</dimen>
-    <dimen name="blackboard_button_size">90dp</dimen>
+    <dimen name="blackboard_button_size">60dp</dimen>
     <dimen name="draw_view_padding_left">50dp</dimen>
     <dimen name="draw_view_padding_top">46dp</dimen>
+    <dimen name="palette_item_size">160dp</dimen>
+    <dimen name="name_size">24sp</dimen>
 
 </resources>

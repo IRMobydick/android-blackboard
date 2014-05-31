@@ -2,7 +2,7 @@
 
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/color_palette"
-    android:layout_width="80dp"
-    android:layout_height="80dp">
+    android:layout_width="@dimen/palette_item_size"
+    android:layout_height="@dimen/palette_item_size">
 
 </ImageView>

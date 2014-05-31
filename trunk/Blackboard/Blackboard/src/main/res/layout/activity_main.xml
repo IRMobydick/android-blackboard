@@ -30,14 +30,6 @@
             android:layout_marginLeft="4dp"
             android:background="@drawable/replay" />
 
-        <Button
-            android:id="@+id/pause"
-            android:layout_width="@dimen/blackboard_button_size"
-            android:layout_height="@dimen/blackboard_button_size"
-            android:layout_marginLeft="4dp"
-            android:layout_toRightOf="@+id/replay"
-            android:background="@drawable/replay" />
-
         <LinearLayout
             android:id="@+id/draw_buttons_layout"
             android:layout_width="wrap_content"
@@ -49,7 +41,7 @@
                 android:layout_width="@dimen/blackboard_button_size"
                 android:layout_height="@dimen/blackboard_button_size"
                 android:layout_marginRight="@dimen/button_margin_right"
-                android:background="@drawable/replay" />
+                android:background="@drawable/share" />
 
             <Button
                 android:id="@+id/color_palette"
@@ -85,7 +77,7 @@
         android:layout_marginRight="@dimen/draw_view_padding_left"
         android:layout_marginTop="3dp"
         android:text="Your name"
-        android:textSize="14sp"
+        android:textSize="@dimen/name_size"
         android:textColor="@color/dark_gray"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

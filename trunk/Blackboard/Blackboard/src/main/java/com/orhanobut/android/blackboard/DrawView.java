@@ -38,6 +38,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     public interface DrawListener{
         public void onReplayCompleted();
         public void onPaused();
+        public void onPlaying();
     }
 
     public DrawView(Context c, DrawListener listener) {
@@ -90,8 +91,13 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        float x = event.getX();
-        float y = event.getY();
+
+        if (isReplaying()){
+            return true;
+        }
+
+        final float x = event.getX();
+        final float y = event.getY();
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -121,12 +127,12 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
 
         @Override
         public void run() {
-            List<MyPath> tempList = pathList;
+            final List<MyPath> tempList = pathList;
             pathList = new ArrayList<MyPath>(tempList.size());
 
             for (MyPath mp : tempList) {
                 path = new MyPath(mp.getPaint());
-                List<Point> list = mp.getPointList();
+                final List<Point> list = mp.getPointList();
                 touchStart(list.get(0).getX(), list.get(0).getY());
                 for (int i = 1; i < list.size() - 1; i++) {
 
@@ -140,7 +146,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
                         }
                     }
 
-                    Point p = list.get(i);
+                    final Point p = list.get(i);
                     touchMove(p.getX(), p.getY());
 
                     try {
@@ -154,7 +160,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
             }
             path = new MyPath(path.getPaint());
 
-            Message m = new Message();
+            final Message m = new Message();
             handler.sendMessage(m);
         }
     }
@@ -163,8 +169,8 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-
             listener.onReplayCompleted();
+            thread = null;
         }
     };
 
@@ -178,6 +184,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
             synchronized (thread.monitor) {
                 thread.monitor.notify();
             }
+            listener.onPlaying();
         } else if (thread.state == Thread.State.RUNNABLE) {
             thread.state = Thread.State.WAITING;
             listener.onPaused();
@@ -185,14 +192,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     }
 
     public boolean isReplaying(){
-        if (thread != null && thread.getState() == Thread.State.RUNNABLE){
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isPaused(){
-        if (thread.state == Thread.State.WAITING){
+        if (thread != null){
             return true;
         }
         return false;

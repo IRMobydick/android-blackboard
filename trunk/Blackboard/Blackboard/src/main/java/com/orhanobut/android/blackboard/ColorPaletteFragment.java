@@ -14,6 +14,7 @@ import android.widget.GridView;
 
 public class ColorPaletteFragment extends DialogFragment implements AdapterView.OnItemClickListener {
 
+    public static final String TAG = ColorPaletteFragment.class.getSimpleName();
     private OnFragmentInteractionListener listener;
     private GridView gridView;
 

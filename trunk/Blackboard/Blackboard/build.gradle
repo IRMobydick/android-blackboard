@@ -20,6 +20,24 @@ android {
         minSdkVersion 10
         targetSdkVersion 19
     }
+
+    signingConfigs {
+        release {
+            storeFile file("blackboard.jks")
+            storePassword ""
+            keyAlias ""
+            keyPassword ""
+        }
+    }
+    buildTypes {
+        release {
+            runProguard true
+            proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
+            signingConfig signingConfigs.release
+        }
+    }
+
+
 }
 
 dependencies {

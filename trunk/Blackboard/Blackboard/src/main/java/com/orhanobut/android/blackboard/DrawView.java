@@ -45,8 +45,13 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         super(c);
 
         setZOrderOnTop(true);
-        path = new MyPath();
-        pathList = new ArrayList<MyPath>();
+        if (path == null) {
+            path = new MyPath();
+        }
+        if (pathList == null){
+            pathList = new ArrayList<MyPath>();
+        }
+
         getHolder().addCallback(this);
         holder = getHolder();
         holder.setFormat(PixelFormat.TRANSPARENT);
@@ -247,6 +252,17 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         }
         drawThread = null;
         thread = null;
+    }
+
+    public void onDestroy(){
+        path = null;
+        pathList = null;
+        thread = null;
+        drawThread = null;
+        if (bitmap != null){
+            bitmap.recycle();
+            bitmap = null;
+        }
     }
 
     public void onResume() {

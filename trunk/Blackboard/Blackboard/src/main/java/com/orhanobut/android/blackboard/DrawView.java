@@ -18,22 +18,28 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
 
-    private MyPath path;
-    private float x, y;
     private static final float TOUCH_TOLERANCE = 0;
     private static final long REPLAY_SPEED = 50;
-    private Thread drawThread;
+
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+    private MyPath path;
+    private float x;
+    private float y;
     private List<MyPath> pathList;
     private volatile boolean running;
     private final SurfaceHolder holder;
     private Bitmap bitmap;
     private Canvas myCanvas;
     private ReplayTask thread;
-    private DrawListener listener;
+    private final DrawListener listener;
 
     public interface DrawListener{
         public void onReplayCompleted();
@@ -49,7 +55,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
             path = new MyPath();
         }
         if (pathList == null){
-            pathList = new ArrayList<MyPath>();
+            pathList = new LinkedList<MyPath>();
         }
 
         getHolder().addCallback(this);
@@ -68,9 +74,11 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     @Override
     public void draw(Canvas canvas) {
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-        for (int i = 0; i < pathList.size(); i++) {
-            pathList.get(i).draw(canvas);
+
+        for (MyPath p : pathList){
+            p.draw(canvas);
         }
+
         path.draw(canvas);
     }
 
@@ -133,13 +141,13 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         @Override
         public void run() {
             final List<MyPath> tempList = pathList;
-            pathList = new ArrayList<MyPath>(tempList.size());
+            pathList = new LinkedList<MyPath>();
 
             for (MyPath mp : tempList) {
                 path = new MyPath(mp.getPaint());
                 final List<Point> list = mp.getPointList();
                 touchStart(list.get(0).getX(), list.get(0).getY());
-                for (int i = 1; i < list.size() - 1; i++) {
+                for (Point p : list) {
 
                     synchronized (monitor) {
                         while (state != State.RUNNABLE) {
@@ -151,7 +159,6 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
                         }
                     }
 
-                    final Point p = list.get(i);
                     touchMove(p.getX(), p.getY());
 
                     try {
@@ -197,10 +204,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     }
 
     public boolean isReplaying(){
-        if (thread != null){
-            return true;
-        }
-        return false;
+        return (thread != null);
     }
 
     public void reset() {
@@ -245,20 +249,15 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
 
     public void onPause() {
         setRunning(false);
-        try {
-            drawThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        drawThread = null;
-        thread = null;
+       // executorService.shutdown();
     }
 
     public void onDestroy(){
         path = null;
         pathList = null;
         thread = null;
-        drawThread = null;
+        //drawThread = null;
+        executorService.shutdown();
         if (bitmap != null){
             bitmap.recycle();
             bitmap = null;
@@ -267,8 +266,9 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
 
     public void onResume() {
         setRunning(true);
-        drawThread = new Thread(this);
-        drawThread.start();
+        executorService.execute(this);
+       // drawThread = new Thread(this);
+       // drawThread.start();
     }
 
     @Override

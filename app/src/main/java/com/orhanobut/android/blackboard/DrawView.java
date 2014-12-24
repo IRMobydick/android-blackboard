@@ -12,6 +12,8 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -39,8 +41,10 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     private Bitmap bitmap;
     private Canvas myCanvas;
     private ReplayTask thread;
+    private boolean exitReplay;
 
     public interface DrawListener {
+
         public void onReplayCompleted();
 
         public void onPaused();
@@ -73,13 +77,11 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-
         for (MyPath path : pathList) {
             path.draw(canvas);
         }
-
         path.draw(canvas);
     }
 
@@ -104,7 +106,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
 
         if (isReplaying()) {
             return true;
@@ -134,60 +136,17 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         return true;
     }
 
-    class ReplayTask extends Thread {
-
-        private final Object monitor = new Object();
-        private State state;
-
-        @Override
-        public void run() {
-            final List<MyPath> tempList = pathList;
-            pathList = new LinkedList<MyPath>();
-
-            for (MyPath myPath : tempList) {
-                path = new MyPath(myPath.getPaint());
-                final List<Point> list = myPath.getPointList();
-                touchStart(list.get(0).getX(), list.get(0).getY());
-                for (Point point : list) {
-
-                    synchronized (monitor) {
-                        while (state != State.RUNNABLE) {
-                            try {
-                                monitor.wait();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-
-                    touchMove(point.getX(), point.getY());
-
-                    try {
-                        Thread.sleep(REPLAY_SPEED);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-                pathList.add(myPath);
-            }
-            path = new MyPath(path.getPaint());
-
-            final Message m = new Message();
-            handler.sendMessage(m);
-        }
-    }
-
     private final Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             listener.onReplayCompleted();
+            exitReplay = false;
             thread = null;
         }
     };
 
-    public void replay() throws InterruptedException {
+    public void replay() {
         if (thread == null || thread.getState() == Thread.State.TERMINATED) {
             thread = new ReplayTask();
             thread.state = Thread.State.RUNNABLE;
@@ -268,24 +227,32 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     public void onResume() {
         setRunning(true);
         executorService.execute(this);
-        // drawThread = new Thread(this);
-        // drawThread.start();
+    }
+
+    public void exitReplay() {
+        if (thread.state == Thread.State.WAITING) {
+            thread.state = Thread.State.RUNNABLE;
+            synchronized (thread.monitor) {
+                thread.monitor.notify();
+            }
+            listener.onPlaying();
+        }
+        exitReplay = true;
     }
 
     @Override
     public void run() {
         while (running) {
             if (holder.getSurface().isValid()) {
-                Canvas c = holder.lockCanvas(null);
+                Canvas canvas = holder.lockCanvas(null);
 
                 synchronized (holder) {
                     if (myCanvas != null) {
                         draw(myCanvas);
                     }
-                    draw(c);
+                    draw(canvas);
                 }
-
-                holder.unlockCanvasAndPost(c);
+                holder.unlockCanvasAndPost(canvas);
             }
         }
     }
@@ -371,4 +338,51 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         }
     }
 
+    class ReplayTask extends Thread {
+
+        private final String TAG = ReplayTask.class.getSimpleName();
+        private final Object monitor = new Object();
+
+        private State state;
+
+        @Override
+        public void run() {
+            final List<MyPath> tempList = pathList;
+            pathList = new LinkedList<MyPath>();
+
+            for (MyPath myPath : tempList) {
+                path = new MyPath(myPath.getPaint());
+                final List<Point> list = myPath.getPointList();
+                touchStart(list.get(0).getX(), list.get(0).getY());
+                for (Point point : list) {
+
+                    synchronized (monitor) {
+                        while (state != State.RUNNABLE) {
+                            try {
+                                monitor.wait();
+                            } catch (InterruptedException e) {
+                                Log.d(TAG, e.getMessage());
+                            }
+                        }
+                    }
+
+                    touchMove(point.getX(), point.getY());
+
+                    try {
+                        if (!exitReplay) {
+                            Thread.sleep(REPLAY_SPEED);
+                        }
+                    } catch (InterruptedException e) {
+                        Log.d(TAG, e.getMessage());
+                    }
+
+                }
+                pathList.add(myPath);
+            }
+            path = new MyPath(path.getPaint());
+
+            final Message m = new Message();
+            handler.sendMessage(m);
+        }
+    }
 }

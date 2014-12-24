@@ -40,9 +40,11 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     private Canvas myCanvas;
     private ReplayTask thread;
 
-    public interface DrawListener{
+    public interface DrawListener {
         public void onReplayCompleted();
+
         public void onPaused();
+
         public void onPlaying();
     }
 
@@ -53,7 +55,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         if (path == null) {
             path = new MyPath();
         }
-        if (pathList == null){
+        if (pathList == null) {
             pathList = new LinkedList<MyPath>();
         }
 
@@ -74,8 +76,8 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     public void draw(Canvas canvas) {
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
-        for (MyPath p : pathList){
-            p.draw(canvas);
+        for (MyPath path : pathList) {
+            path.draw(canvas);
         }
 
         path.draw(canvas);
@@ -104,7 +106,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        if (isReplaying()){
+        if (isReplaying()) {
             return true;
         }
 
@@ -176,7 +178,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         }
     }
 
-    private final Handler handler = new Handler(){
+    private final Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -202,7 +204,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         }
     }
 
-    public boolean isReplaying(){
+    public boolean isReplaying() {
         return (thread != null);
     }
 
@@ -248,16 +250,16 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
 
     public void onPause() {
         setRunning(false);
-       // executorService.shutdown();
+        // executorService.shutdown();
     }
 
-    public void onDestroy(){
+    public void onDestroy() {
         path = null;
         pathList = null;
         thread = null;
         //drawThread = null;
         executorService.shutdown();
-        if (bitmap != null){
+        if (bitmap != null) {
             bitmap.recycle();
             bitmap = null;
         }
@@ -266,8 +268,8 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     public void onResume() {
         setRunning(true);
         executorService.execute(this);
-       // drawThread = new Thread(this);
-       // drawThread.start();
+        // drawThread = new Thread(this);
+        // drawThread.start();
     }
 
     @Override
@@ -293,6 +295,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     }
 
     static class MyPath extends Path {
+
         private static final float ERASER_STROKE_WIDTH = 50f;
         private static final float PEN_STROKE_WIDTH = 14;
 
@@ -314,7 +317,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
 
         public MyPath(Paint paint) {
             this.paint = new Paint(paint);
-            pointList = new ArrayList<Point>();
+            this.pointList = new ArrayList<Point>();
         }
 
         public void draw(Canvas canvas) {
@@ -350,6 +353,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     }
 
     static class Point {
+
         private final float x;
         private final float y;
 

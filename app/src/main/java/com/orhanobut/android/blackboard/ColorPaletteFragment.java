@@ -10,13 +10,17 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
 public class ColorPaletteFragment extends DialogFragment implements
         AdapterView.OnItemClickListener {
 
     public static final String TAG = ColorPaletteFragment.class.getSimpleName();
 
     private OnFragmentInteractionListener listener;
-    private GridView gridView;
+
+    @InjectView(R.id.color_list) GridView gridView;
 
     public static ColorPaletteFragment newInstance() {
         return new ColorPaletteFragment();
@@ -30,7 +34,7 @@ public class ColorPaletteFragment extends DialogFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         View view = inflater.inflate(R.layout.fragment_colors, container, false);
-        gridView = (GridView) view.findViewById(R.id.color_list);
+        ButterKnife.inject(this, view);
         return view;
     }
 
@@ -57,8 +61,14 @@ public class ColorPaletteFragment extends DialogFragment implements
 
     @Override
     public void onDetach() {
-        super.onDetach();
         listener = null;
+        super.onDetach();
+    }
+
+    @Override
+    public void onDestroyView() {
+        ButterKnife.reset(this);
+        super.onDestroyView();
     }
 
     @Override

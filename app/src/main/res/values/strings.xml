@@ -2,7 +2,6 @@
 <resources>
 
     <string name="app_name">Blackboard</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="click_change_name">Touch here to change your name</string>
     <string name="share">Share</string>
     <string name="enter_your_name">Enter your name</string>

@@ -8,7 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 /**
- * Created by limon on 25.5.2014.
+ * @author Orhan Obut.
  */
 public class ColorPaletteAdapter extends BaseAdapter {
 
@@ -16,7 +16,7 @@ public class ColorPaletteAdapter extends BaseAdapter {
     private final int[] list;
 
     public ColorPaletteAdapter(Context context, int list) {
-        layoutInflater = LayoutInflater.from(context);
+        this.layoutInflater = LayoutInflater.from(context);
         this.list = context.getResources().getIntArray(list);
     }
 

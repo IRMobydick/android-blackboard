@@ -1,0 +1,33 @@
+
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 20
+    buildToolsVersion "20.0.0"
+
+    defaultConfig {
+        minSdkVersion 10
+        targetSdkVersion 20
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("blackboard.jks")
+            storePassword ""
+            keyAlias ""
+            keyPassword ""
+        }
+    }
+    buildTypes {
+        release {
+            proguardFile getDefaultProguardFile('proguard-android-optimize.txt')
+            signingConfig signingConfigs.release
+        }
+    }
+
+
+}
+
+dependencies {
+	compile 'com.android.support:appcompat-v7:20.+'
+}

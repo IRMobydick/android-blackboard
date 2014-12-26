@@ -28,7 +28,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:screenOrientation="landscape"
+            android:configChanges="orientation"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -36,7 +36,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <meta-data android:name="com.crashlytics.ApiKey" android:value="d5b7f743c2a3e72e1c1862f5080e3c36373c8ea2"/>
+
+        <meta-data
+            android:name="com.crashlytics.ApiKey"
+            android:value="d5b7f743c2a3e72e1c1862f5080e3c36373c8ea2"/>
     </application>
 
 </manifest>

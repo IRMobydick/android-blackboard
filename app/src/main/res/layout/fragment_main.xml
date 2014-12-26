@@ -52,7 +52,7 @@
             android:layout_height="wrap_content">
 
             <Button
-                android:id="@+id/screenshot"
+                android:id="@+id/share"
                 android:layout_width="@dimen/blackboard_button_size"
                 android:layout_height="@dimen/blackboard_button_size"
                 android:layout_marginRight="@dimen/button_margin_right"

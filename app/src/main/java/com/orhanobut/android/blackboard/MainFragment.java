@@ -14,6 +14,7 @@ import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +40,7 @@ import de.greenrobot.event.EventBus;
 public class MainFragment extends Fragment implements
         DrawView.DrawListener {
 
+    private static final String TAG = MainFragment.class.getSimpleName();
     private static final String KEY_NAME = "name";
     private static final int SHARE_REQUEST_CODE = 10;
     private static final String IMAGE_TEMP_PATH = Environment.getExternalStorageDirectory().toString() + "/blackboard";
@@ -59,11 +61,31 @@ public class MainFragment extends Fragment implements
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            listener = (OnFragmentListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity + " should implement OnFragmentListener");
+        }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_main, container, false);
         ButterKnife.inject(this, view);
-
         drawView = new DrawView(getActivity(), this);
+
+        if (savedInstanceState == null) {
+
+        }
+
         FrameLayout drawContainer = (FrameLayout) view.findViewById(R.id.draw_layout);
         drawContainer.addView(drawView);
 
@@ -72,16 +94,6 @@ public class MainFragment extends Fragment implements
         textViewAuthor.setText(getName());
 
         return view;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            listener = (OnFragmentListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity + " should implement OnFragmentListener");
-        }
     }
 
     private void replay(View view) {
@@ -125,15 +137,16 @@ public class MainFragment extends Fragment implements
 
     @Override
     public void onPause() {
+        Log.d(TAG, "onPause");
         drawView.onPause();
         EventBus.getDefault().unregister(this);
         super.onPause();
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    @OnClick(R.id.screenshot)
-    void onScreenShotClick() {
-        handleScreenShot();
+    @OnClick(R.id.share)
+    void onShareClick() {
+        share();
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -209,7 +222,7 @@ public class MainFragment extends Fragment implements
         return (value.isEmpty() ? getString(R.string.click_change_name) : value);
     }
 
-    private void handleScreenShot() {
+    private void share() {
         Uri uri = takeScreenShot();
 
         Intent share = new Intent(Intent.ACTION_SEND);
@@ -239,8 +252,8 @@ public class MainFragment extends Fragment implements
     public Uri takeScreenShot() {
         buttonContainer.setVisibility(View.GONE);
 
-        final Time t = new Time();
-        t.setToNow();
+        final Time time = new Time();
+        time.setToNow();
 
         rootView.setDrawingCacheEnabled(true);
 
@@ -249,27 +262,36 @@ public class MainFragment extends Fragment implements
             folder.mkdir();
         }
 
-        final String path = folder + "/" + t.format("%Y%M%d%k%M%S") + ".jpeg";
+        final String path = folder + "/" + time.format("%Y%M%d%k%M%S") + ".jpeg";
 
-        final Bitmap result = overlay(rootView.getDrawingCache(), drawView.getBitmap());
+        Bitmap drawingCache = rootView.getDrawingCache();
+        Bitmap drawBitmap = drawView.getBitmap();
+        if (drawBitmap.isRecycled()) {
+            buttonContainer.setVisibility(View.VISIBLE);
+            return null;
+        }
+        Bitmap result = overlay(drawingCache, drawBitmap);
 
         rootView.setDrawingCacheEnabled(false);
 
-        OutputStream fout;
+        OutputStream outputStream;
         final File imageFile = new File(path);
 
         try {
-            fout = new FileOutputStream(imageFile);
-            result.compress(Bitmap.CompressFormat.JPEG, 90, fout);
-            fout.flush();
-            fout.close();
+            outputStream = new FileOutputStream(imageFile);
+            result.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
+            outputStream.flush();
+            outputStream.close();
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Log.d(TAG, e.getMessage());
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.d(TAG, e.getMessage());
         } finally {
             result.recycle();
+            drawingCache.recycle();
+            rootView.destroyDrawingCache();
+            result = null;
         }
 
         buttonContainer.setVisibility(View.VISIBLE);
@@ -277,17 +299,17 @@ public class MainFragment extends Fragment implements
         return Uri.fromFile(new File(path));
     }
 
-    private Bitmap overlay(Bitmap bmp1, Bitmap bmp2) {
-        final Bitmap bmOverlay = Bitmap.createBitmap(bmp1.getWidth(), bmp1.getHeight(), bmp1.getConfig());
-        final Canvas canvas = new Canvas(bmOverlay);
-        canvas.drawBitmap(bmp1, new Matrix(), null);
+    private Bitmap overlay(Bitmap backBitmap, Bitmap topBitmap) {
+        Bitmap overlayBitmap = Bitmap.createBitmap(backBitmap.getWidth(), backBitmap.getHeight(), backBitmap.getConfig());
+        Canvas canvas = new Canvas(overlayBitmap);
+        canvas.drawBitmap(backBitmap, new Matrix(), null);
 
-        final int paddingLeft = (int) getResources().getDimension(R.dimen.draw_view_padding_left);
-        final int paddingTop = (int) getResources().getDimension(R.dimen.draw_view_padding_top);
+        int paddingLeft = (int) getResources().getDimension(R.dimen.draw_view_padding_left);
+        int paddingTop = (int) getResources().getDimension(R.dimen.draw_view_padding_top);
 
-        canvas.drawBitmap(bmp2, paddingLeft, paddingTop, null);
+        canvas.drawBitmap(topBitmap, paddingLeft, paddingTop, null);
 
-        return bmOverlay;
+        return overlayBitmap;
     }
 
     @Override
@@ -304,9 +326,16 @@ public class MainFragment extends Fragment implements
 
     @Override
     public void onDestroyView() {
-        drawView.onDestroy();
+        Log.d(TAG, "onDestroyView");
         ButterKnife.reset(this);
         super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "onDestroy");
+        drawView.onDestroy();
+        super.onDestroy();
     }
 
     @Override

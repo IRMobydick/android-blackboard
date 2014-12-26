@@ -65,7 +65,6 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         if (pathList == null) {
             pathList = new ArrayList<MyPath>();
             Log.d(TAG, "pathList = new (constructor)");
-
         }
 
         getHolder().addCallback(this);
@@ -84,18 +83,11 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     @Override
     public void draw(@NonNull Canvas canvas) {
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-
         List<MyPath> tempPathList = new ArrayList<MyPath>(pathList);
 
         for (MyPath myPath : tempPathList) {
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
             myPath.draw(canvas);
         }
-
         path.draw(canvas);
     }
 
@@ -177,6 +169,10 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         pathList.clear();
         path = new MyPath(path.getPaint());
         thread = null;
+
+        if (bitmap != null) {
+            bitmap.recycle();
+        }
     }
 
     public void setEraser() {
@@ -201,7 +197,6 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
 
         myCanvas = new Canvas(bitmap);
-
     }
 
     @Override
@@ -214,18 +209,19 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     }
 
     public void onPause() {
+        Log.d(TAG, "onPause");
         setRunning(false);
-        // executorService.shutdown();
     }
 
     public void onDestroy() {
+        Log.d(TAG, "onDestroy");
+        setRunning(false);
+        executorService.shutdown();
         path = null;
         pathList = null;
         Log.d(TAG, "pathList == null (onDestroy)");
 
         thread = null;
-        //drawThread = null;
-        executorService.shutdown();
         if (bitmap != null) {
             bitmap.recycle();
             bitmap = null;
@@ -250,18 +246,21 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
 
     @Override
     public void run() {
+        Log.d(TAG, "run");
         while (running) {
-            if (holder.getSurface().isValid()) {
-                Canvas canvas = holder.lockCanvas(null);
-
-                synchronized (holder) {
-                    if (myCanvas != null) {
-                        draw(myCanvas);
-                    }
-                    draw(canvas);
-                }
-                holder.unlockCanvasAndPost(canvas);
+            if (!holder.getSurface().isValid()) {
+                break;
             }
+
+            Canvas canvas = holder.lockCanvas(null);
+
+            synchronized (holder) {
+                if (myCanvas != null) {
+                    draw(myCanvas);
+                }
+                draw(canvas);
+            }
+            holder.unlockCanvasAndPost(canvas);
         }
     }
 

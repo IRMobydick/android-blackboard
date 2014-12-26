@@ -42,7 +42,8 @@ public class ColorPaletteFragment extends DialogFragment implements
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        gridView.setAdapter(new ColorPaletteAdapter(getActivity(), R.array.color_list));
+        int[] colorList = getActivity().getResources().getIntArray(R.array.color_list);
+        gridView.setAdapter(new ColorPaletteAdapter(getActivity(), colorList));
         gridView.setOnItemClickListener(this);
 
         getDialog().getWindow().getAttributes().windowAnimations = R.anim.abc_slide_in_bottom;

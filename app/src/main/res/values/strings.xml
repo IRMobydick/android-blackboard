@@ -7,5 +7,7 @@
     <string name="enter_your_name">Enter your name</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="ad_unit_id">ca-app-pub-3940256099942544/6935451723277286</string>
 
 </resources>

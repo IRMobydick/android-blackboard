@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:id="@+id/main_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/blackboard"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/draw_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@android:color/transparent"
+        android:paddingBottom="@dimen/draw_view_padding_left"
+        android:paddingLeft="@dimen/draw_view_padding_left"
+        android:paddingRight="@dimen/draw_view_padding_left"
+        android:paddingTop="@dimen/draw_view_padding_top"/>
+
+    <LinearLayout
+        android:id="@+id/button_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="4dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/replay"
+            android:layout_width="@dimen/blackboard_button_size"
+            android:layout_height="@dimen/blackboard_button_size"
+            android:layout_marginLeft="4dp"
+            android:background="@drawable/replay"/>
+
+        <Button
+            android:id="@+id/exit_replay_button"
+            android:layout_width="@dimen/blackboard_button_size"
+            android:layout_height="@dimen/blackboard_button_size"
+            android:layout_marginLeft="4dp"
+            android:visibility="gone"
+            android:background="@drawable/replay"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"/>
+
+        <LinearLayout
+            android:id="@+id/draw_button_container"
+            android:layout_width="wrap_content"
+            android:layout_gravity="right"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/screenshot"
+                android:layout_width="@dimen/blackboard_button_size"
+                android:layout_height="@dimen/blackboard_button_size"
+                android:layout_marginRight="@dimen/button_margin_right"
+                android:background="@drawable/share"/>
+
+            <Button
+                android:id="@+id/color_palette"
+                android:layout_width="@dimen/blackboard_button_size"
+                android:layout_height="@dimen/blackboard_button_size"
+                android:layout_gravity="right"
+                android:layout_marginRight="@dimen/button_margin_right"
+                android:background="@drawable/color_palette"/>
+
+            <Button
+                android:id="@+id/eraser"
+                android:layout_width="@dimen/blackboard_button_size"
+                android:layout_height="@dimen/blackboard_button_size"
+                android:layout_gravity="right"
+                android:layout_marginRight="@dimen/button_margin_right"
+                android:background="@drawable/clean"/>
+
+            <Button
+                android:id="@+id/reset"
+                android:layout_width="@dimen/blackboard_button_size"
+                android:layout_height="@dimen/blackboard_button_size"
+                android:layout_gravity="right"
+                android:layout_marginRight="@dimen/button_margin_right"
+                android:background="@drawable/new_blackboard"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="@dimen/draw_view_padding_left"
+        android:layout_marginTop="3dp"
+        android:text="Your name"
+        android:textColor="@color/dark_gray"
+        android:textSize="@dimen/name_size"/>
+
+</RelativeLayout>

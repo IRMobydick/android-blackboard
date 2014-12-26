@@ -11,7 +11,6 @@ import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -19,6 +18,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -26,12 +27,14 @@ import java.util.concurrent.Executors;
 
 public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
 
+    private static final String TAG = DrawView.class.getSimpleName();
     private static final float TOUCH_TOLERANCE = 0;
     private static final long REPLAY_SPEED = 50;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final SurfaceHolder holder;
     private final DrawListener listener;
+    private final Handler handler = new Handler();
 
     private MyPath path;
     private float x;
@@ -60,7 +63,9 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
             path = new MyPath();
         }
         if (pathList == null) {
-            pathList = new LinkedList<MyPath>();
+            pathList = new ArrayList<MyPath>();
+            Log.d(TAG, "pathList = new (constructor)");
+
         }
 
         getHolder().addCallback(this);
@@ -79,9 +84,18 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     @Override
     public void draw(@NonNull Canvas canvas) {
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-        for (MyPath path : pathList) {
-            path.draw(canvas);
+
+        List<MyPath> tempPathList = new ArrayList<MyPath>(pathList);
+
+        for (MyPath myPath : tempPathList) {
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+            myPath.draw(canvas);
         }
+
         path.draw(canvas);
     }
 
@@ -130,21 +144,12 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
                 path.addPoint(new Point(x + 1, y + 1));
                 touchUp();
                 pathList.add(path);
+                Log.d(TAG, "pathList.add ACTION_UP");
                 path = new MyPath(path.getPaint());
                 break;
         }
         return true;
     }
-
-    private final Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            listener.onReplayCompleted();
-            exitReplay = false;
-            thread = null;
-        }
-    };
 
     public void replay() {
         if (thread == null || thread.getState() == Thread.State.TERMINATED) {
@@ -168,6 +173,7 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     }
 
     public void reset() {
+        Log.d(TAG, "pathList clear (reset)");
         pathList.clear();
         path = new MyPath(path.getPaint());
         thread = null;
@@ -215,6 +221,8 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
     public void onDestroy() {
         path = null;
         pathList = null;
+        Log.d(TAG, "pathList == null (onDestroy)");
+
         thread = null;
         //drawThread = null;
         executorService.shutdown();
@@ -347,8 +355,9 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
 
         @Override
         public void run() {
-            final List<MyPath> tempList = pathList;
-            pathList = new LinkedList<MyPath>();
+            List<MyPath> tempList = new ArrayList<MyPath>(pathList);
+            pathList = new ArrayList<MyPath>();
+            Log.d(TAG, "pathList = new LinkedList() (ReplayTask run)");
 
             for (MyPath myPath : tempList) {
                 path = new MyPath(myPath.getPaint());
@@ -378,11 +387,18 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
 
                 }
                 pathList.add(myPath);
+                Log.d(TAG, "pathList.add (ReplayTask run)");
             }
             path = new MyPath(path.getPaint());
 
-            final Message m = new Message();
-            handler.sendMessage(m);
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    listener.onReplayCompleted();
+                    exitReplay = false;
+                    thread = null;
+                }
+            });
         }
     }
 }

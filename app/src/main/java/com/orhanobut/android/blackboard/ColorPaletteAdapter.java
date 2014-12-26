@@ -15,9 +15,9 @@ public class ColorPaletteAdapter extends BaseAdapter {
     private final LayoutInflater layoutInflater;
     private final int[] list;
 
-    public ColorPaletteAdapter(Context context, int list) {
+    public ColorPaletteAdapter(Context context, int[] list) {
         this.layoutInflater = LayoutInflater.from(context);
-        this.list = context.getResources().getIntArray(list);
+        this.list = list;
     }
 
     @Override

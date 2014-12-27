@@ -25,3 +25,9 @@ proguard/
 /build
 .idea
 *.iml
+app/crashlytics.properties
+app/blackboard.jks
+app/out.map
+blackboard.jks
+keystore.properties
+app/src/main/res/values/com_crashlytics_export_strings.xml

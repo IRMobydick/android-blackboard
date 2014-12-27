@@ -37,7 +37,8 @@
 
         <meta-data
             android:name="com.crashlytics.ApiKey"
-            android:value="d5b7f743c2a3e72e1c1862f5080e3c36373c8ea2"/>
+            android:value="${CRASHLYTICS_KEY}"/>
+
     </application>
 
 </manifest>

@@ -147,5 +147,7 @@
 -keep class android.support.v4.** { *; }
 -keep interface android.support.v4.** { *; }
 
+#Crashlytics
+-keepattributes SourceFile,LineNumberTable
 
 

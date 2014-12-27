@@ -304,10 +304,9 @@ public class MainFragment extends Fragment implements
         Canvas canvas = new Canvas(overlayBitmap);
         canvas.drawBitmap(backBitmap, new Matrix(), null);
 
-        int paddingLeft = (int) getResources().getDimension(R.dimen.draw_view_padding_left);
-        int paddingTop = (int) getResources().getDimension(R.dimen.draw_view_padding_top);
+        int padding = (int) getResources().getDimension(R.dimen.draw_view_padding);
 
-        canvas.drawBitmap(topBitmap, paddingLeft, paddingTop, null);
+        canvas.drawBitmap(topBitmap, padding, padding, null);
 
         return overlayBitmap;
     }

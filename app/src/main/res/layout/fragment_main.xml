@@ -12,10 +12,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:background="@android:color/transparent"
-        android:paddingBottom="@dimen/draw_view_padding_left"
-        android:paddingLeft="@dimen/draw_view_padding_left"
-        android:paddingRight="@dimen/draw_view_padding_left"
-        android:paddingTop="@dimen/draw_view_padding_top"/>
+        android:layout_margin="@dimen/draw_view_padding"/>
 
     <LinearLayout
         android:id="@+id/button_container"
@@ -38,7 +35,7 @@
             android:layout_height="@dimen/blackboard_button_size"
             android:layout_marginLeft="4dp"
             android:visibility="gone"
-            android:background="@drawable/replay"/>
+            android:background="@drawable/fastreplay"/>
 
         <View
             android:layout_width="0dp"
@@ -91,8 +88,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="@dimen/draw_view_padding_left"
-        android:layout_marginTop="3dp"
+        android:layout_marginRight="@dimen/draw_view_padding"
         android:text="Your name"
         android:textColor="@color/dark_gray"
         android:textSize="@dimen/name_size"/>

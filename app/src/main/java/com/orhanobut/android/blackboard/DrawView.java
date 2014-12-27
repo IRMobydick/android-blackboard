@@ -354,9 +354,12 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
 
         @Override
         public void run() {
-            List<MyPath> tempList = new ArrayList<MyPath>(pathList);
-            pathList = new ArrayList<MyPath>();
-            Log.d(TAG, "pathList = new LinkedList() (ReplayTask run)");
+            List<MyPath> tempList = Collections.emptyList();
+            if (!pathList.isEmpty()) {
+                tempList = new ArrayList<MyPath>(pathList);
+                pathList = new ArrayList<MyPath>();
+                Log.d(TAG, "pathList = new ArrayList() (ReplayTask run)");
+            }
 
             for (MyPath myPath : tempList) {
                 path = new MyPath(myPath.getPaint());

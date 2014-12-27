@@ -4,10 +4,9 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
 
     <dimen name="blackboard_button_size">40dp</dimen>
-    <dimen name="draw_view_padding_left">24dp</dimen>
-    <dimen name="draw_view_padding_top">24dp</dimen>
+    <dimen name="draw_view_padding">12dp</dimen>
     <dimen name="button_margin_right">8dp</dimen>
     <dimen name="palette_item_size">80dp</dimen>
-    <dimen name="name_size">14sp</dimen>
+    <dimen name="name_size">12sp</dimen>
 
 </resources>

@@ -213,18 +213,19 @@ public class DrawView extends SurfaceView implements SurfaceHolder.Callback, Run
         setRunning(false);
     }
 
+    //TODO improvement needed for destroying
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
         setRunning(false);
         executorService.shutdown();
-        path = null;
-        pathList = null;
+        //   path = null;
+        //   pathList = null;
         Log.d(TAG, "pathList == null (onDestroy)");
 
-        thread = null;
+        //   thread = null;
         if (bitmap != null) {
-            bitmap.recycle();
-            bitmap = null;
+            //      bitmap.recycle();
+            //     bitmap = null;
         }
     }
 

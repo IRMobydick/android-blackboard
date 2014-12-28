@@ -17,7 +17,6 @@ repositories {
 def Properties keyProps = new Properties()
 keyProps.load(new FileInputStream(file('../keystore.properties')))
 
-
 def CRASHLYTICS_KEY = keyProps["crashlytics"];
 
 android {
@@ -27,8 +26,8 @@ android {
     defaultConfig {
         minSdkVersion 10
         targetSdkVersion 20
-        versionCode 7
-        versionName "1.7"
+        versionCode 8
+        versionName "1.8"
     }
 
     signingConfigs {

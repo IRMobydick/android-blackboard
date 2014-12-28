@@ -18,6 +18,9 @@
 
 #Generic proguard
 
+-dontobfuscate
+-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*,!code/allocation/variable
+
 -optimizationpasses 25
 -dontusemixedcaseclassnames
 -dontskipnonpubliclibraryclasses

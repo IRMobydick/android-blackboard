@@ -313,6 +313,11 @@ public class MainFragment extends Fragment implements
 
     @Override
     public void onReplayCompleted() {
+        Log.d(TAG, "onReplayCompleted");
+        if (!isVisible()) {
+            Log.d(TAG, "onReplayCompleted : is not visible");
+            return;
+        }
         drawButtonContainer.setVisibility(View.VISIBLE);
         buttonPlay.setBackgroundResource(R.drawable.replay);
         exitReplayButton.setVisibility(View.GONE);

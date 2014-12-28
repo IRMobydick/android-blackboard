@@ -8,3 +8,11 @@ Android blackboard application
 
 ####Play Store
 <a href='https://play.google.com/store/apps/details?id=com.orhanobut.android.blackboard'>Install</a>
+
+
+####TODO
+- Keep the image while screen rotation
+- Do the bitmap operations in background
+- Concurrency improvement
+- Better UI for name at the top-right
+- Automatically select pen when a color is selected
